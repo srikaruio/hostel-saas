@@ -38,4 +38,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+# local notes / AI artifacts
+*.txt
+AGENTS.md
+CLAUDE.md
+# system
+Thumbs.db
