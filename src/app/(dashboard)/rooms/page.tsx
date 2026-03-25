@@ -1,5 +1,5 @@
 "use client";
-
+// test redeploy
 import { useEffect, useState, useMemo } from "react";
 import { Plus, Search, Edit, Trash2, Loader2, DoorOpen, AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -34,7 +34,7 @@ export default function RoomsPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -50,8 +50,8 @@ export default function RoomsPage() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-       setLoading(false);
-       return;
+      setLoading(false);
+      return;
     }
 
     // 1. Fetch rooms
@@ -77,18 +77,18 @@ export default function RoomsPage() {
 
     if (studentsError) {
       console.error("Error fetching occupancy:", studentsError.message);
-    } 
+    }
 
     const occupancyMap: Record<string, number> = {};
     studentsData?.forEach(s => {
-       if (s.room_id) {
-          occupancyMap[s.room_id] = (occupancyMap[s.room_id] || 0) + 1;
-       }
+      if (s.room_id) {
+        occupancyMap[s.room_id] = (occupancyMap[s.room_id] || 0) + 1;
+      }
     });
 
     const roomsWithOccupancy = roomsData.map(r => ({
-       ...r,
-       occupancy: occupancyMap[r.id] || 0
+      ...r,
+      occupancy: occupancyMap[r.id] || 0
     }));
 
     setRooms(roomsWithOccupancy);
@@ -257,47 +257,47 @@ export default function RoomsPage() {
                           <DoorOpen className="h-5 w-5" />
                         </div>
                         <div className="flex flex-col">
-                           <span className="font-bold text-foreground">Room {room.room_number}</span>
-                           <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-tighter">ID: {room.id.substring(0,8)}</span>
+                          <span className="font-bold text-foreground">Room {room.room_number}</span>
+                          <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-tighter">ID: {room.id.substring(0, 8)}</span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                         <span className="text-sm font-black text-foreground">{room.occupancy} / {room.total_beds} filled</span>
-                         <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-                            {room.total_beds - (room.occupancy || 0)} vacant beds
-                         </span>
+                        <span className="text-sm font-black text-foreground">{room.occupancy} / {room.total_beds} filled</span>
+                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                          {room.total_beds - (room.occupancy || 0)} vacant beds
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                       {room.occupancy === 0 ? (
-                         <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest border border-slate-200">
-                           Empty
-                         </span>
-                       ) : room.occupancy! < room.total_beds ? (
-                         <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest border border-emerald-200">
-                           Available
-                         </span>
-                       ) : (
-                         <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-widest border border-rose-200">
-                           Full
-                         </span>
-                       )}
+                      {room.occupancy === 0 ? (
+                        <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest border border-slate-200">
+                          Empty
+                        </span>
+                      ) : room.occupancy! < room.total_beds ? (
+                        <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest border border-emerald-200">
+                          Available
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-widest border border-rose-200">
+                          Full
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right px-6">
                       <div className="flex justify-end gap-1.5">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleOpenEdit(room)}
                           className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleOpenArchive(room)}
                           className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
                         >
@@ -332,32 +332,32 @@ export default function RoomsPage() {
             <div className="p-6 space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">Room Label</label>
-                <Input 
-                   name="room_number" 
-                   defaultValue={selectedRoom?.room_number} 
-                   placeholder="e.g. 101, 202-A" 
-                   className="h-12 bg-muted/20 border-muted-foreground/20 text-lg font-bold" 
-                   required
+                <Input
+                  name="room_number"
+                  defaultValue={selectedRoom?.room_number}
+                  placeholder="e.g. 101, 202-A"
+                  className="h-12 bg-muted/20 border-muted-foreground/20 text-lg font-bold"
+                  required
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">Bed Capacity</label>
-                <Input 
-                   name="total_beds" 
-                   type="number"
-                   defaultValue={selectedRoom?.total_beds} 
-                   placeholder="Number of beds" 
-                   className="h-12 bg-muted/20 border-muted-foreground/20 text-lg font-bold" 
-                   required
-                   min="1"
+                <Input
+                  name="total_beds"
+                  type="number"
+                  defaultValue={selectedRoom?.total_beds}
+                  placeholder="Number of beds"
+                  className="h-12 bg-muted/20 border-muted-foreground/20 text-lg font-bold"
+                  required
+                  min="1"
                 />
               </div>
             </div>
             <DialogFooter className="p-4 bg-muted/30 border-t flex gap-3">
-               <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1 h-11 font-bold">Abort</Button>
-               <Button type="submit" disabled={isSyncing} className="flex-1 h-11 font-black shadow-lg">
-                  {isSyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : (mode === "add" ? "Initialize" : "Save Changes")}
-               </Button>
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1 h-11 font-bold">Abort</Button>
+              <Button type="submit" disabled={isSyncing} className="flex-1 h-11 font-black shadow-lg">
+                {isSyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : (mode === "add" ? "Initialize" : "Save Changes")}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -365,29 +365,29 @@ export default function RoomsPage() {
 
       {/* Archive Modal */}
       <Dialog open={isArchiveModalOpen} onOpenChange={setIsArchiveModalOpen}>
-         <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-premium">
-            <div className="p-8 text-center space-y-4">
-               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 ring-4 ring-amber-50">
-                  <AlertTriangle className="h-8 w-8 text-amber-600" />
-               </div>
-               <div className="space-y-2">
-                  <h3 className="text-2xl font-black text-foreground tracking-tighter">Decommission Room?</h3>
-                  <p className="text-sm text-muted-foreground px-4 font-medium leading-relaxed">
-                     Moving <span className="font-bold text-foreground">Room {selectedRoom?.room_number}</span> to archive will remove it from the selection pool.
-                  </p>
-               </div>
+        <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-premium">
+          <div className="p-8 text-center space-y-4">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 ring-4 ring-amber-50">
+              <AlertTriangle className="h-8 w-8 text-amber-600" />
             </div>
-            <DialogFooter className="p-4 bg-muted/30 border-t flex gap-3">
-               <Button variant="outline" onClick={() => setIsArchiveModalOpen(false)} className="flex-1 h-11 font-bold">Cancel</Button>
-               <Button 
-                  onClick={confirmArchive} 
-                  disabled={isSyncing}
-                  className="flex-1 h-11 bg-amber-600 hover:bg-amber-700 text-white font-black"
-               >
-                  {isSyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirm Archive"}
-               </Button>
-            </DialogFooter>
-         </DialogContent>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-foreground tracking-tighter">Decommission Room?</h3>
+              <p className="text-sm text-muted-foreground px-4 font-medium leading-relaxed">
+                Moving <span className="font-bold text-foreground">Room {selectedRoom?.room_number}</span> to archive will remove it from the selection pool.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="p-4 bg-muted/30 border-t flex gap-3">
+            <Button variant="outline" onClick={() => setIsArchiveModalOpen(false)} className="flex-1 h-11 font-bold">Cancel</Button>
+            <Button
+              onClick={confirmArchive}
+              disabled={isSyncing}
+              className="flex-1 h-11 bg-amber-600 hover:bg-amber-700 text-white font-black"
+            >
+              {isSyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirm Archive"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );
