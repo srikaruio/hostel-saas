@@ -27,6 +27,7 @@ type Room = {
   room_number: string;
   total_beds: number;
   is_active: boolean;
+  occupancy?: number;
 };
 
 export default function RoomsPage() {
@@ -48,25 +49,54 @@ export default function RoomsPage() {
   async function fetchRooms() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+       setLoading(false);
+       return;
+    }
 
-    const { data, error } = await supabase
+    // 1. Fetch rooms
+    const { data: roomsData, error: roomsError } = await supabase
       .from("rooms")
       .select("*")
       .eq("is_active", true)
       .or(`user_id.eq.${user.id},user_id.is.null`)
       .order("room_number");
 
-    if (error) {
-      console.error("Error fetching rooms:", error.message);
-    } else if (data) {
-      setRooms(data);
+    if (roomsError) {
+      console.error("Error fetching rooms:", roomsError.message);
+      setLoading(false);
+      return;
     }
+
+    // 2. Fetch occupancy counts (active students only)
+    const { data: studentsData, error: studentsError } = await supabase
+      .from("students")
+      .select("room_id")
+      .eq("is_active", true)
+      .or(`user_id.eq.${user.id},user_id.is.null`);
+
+    if (studentsError) {
+      console.error("Error fetching occupancy:", studentsError.message);
+    } 
+
+    const occupancyMap: Record<string, number> = {};
+    studentsData?.forEach(s => {
+       if (s.room_id) {
+          occupancyMap[s.room_id] = (occupancyMap[s.room_id] || 0) + 1;
+       }
+    });
+
+    const roomsWithOccupancy = roomsData.map(r => ({
+       ...r,
+       occupancy: occupancyMap[r.id] || 0
+    }));
+
+    setRooms(roomsWithOccupancy);
     setLoading(false);
   }
 
   const filteredRooms = useMemo(() => {
-    return rooms.filter((r) => r.room_number.includes(searchTerm));
+    return rooms.filter((r) => r.room_number.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [rooms, searchTerm]);
 
   const handleOpenAdd = () => {
@@ -113,7 +143,7 @@ export default function RoomsPage() {
         console.error("Add failed:", error.message);
         alert("Failed to create room.");
       } else if (data) {
-        setRooms((prev) => [...prev, data[0]].sort((a,b) => a.room_number.localeCompare(b.room_number)));
+        fetchRooms();
         setIsModalOpen(false);
       }
     } else {
@@ -129,9 +159,7 @@ export default function RoomsPage() {
         console.error("Update failed:", error.message);
         alert("Failed to update room.");
       } else if (data) {
-        setRooms((prev) => 
-          prev.map((r) => r.id === selectedRoom!.id ? data[0] : r)
-        );
+        fetchRooms();
         setIsModalOpen(false);
       }
     }
@@ -169,7 +197,7 @@ export default function RoomsPage() {
       console.error("Archive failed:", archiveError.message);
       alert("Error archiving room.");
     } else {
-      setRooms((prev) => prev.filter((r) => r.id !== selectedRoom.id));
+      fetchRooms();
       setIsArchiveModalOpen(false);
     }
     setIsSyncing(false);
@@ -236,14 +264,26 @@ export default function RoomsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                         <span className="text-sm font-black text-foreground">{room.total_beds}</span>
-                         <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Beds Available</span>
+                         <span className="text-sm font-black text-foreground">{room.occupancy} / {room.total_beds} filled</span>
+                         <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
+                            {room.total_beds - (room.occupancy || 0)} vacant beds
+                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                       <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest border border-emerald-200">
-                         Functional
-                       </span>
+                       {room.occupancy === 0 ? (
+                         <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest border border-slate-200">
+                           Empty
+                         </span>
+                       ) : room.occupancy! < room.total_beds ? (
+                         <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest border border-emerald-200">
+                           Available
+                         </span>
+                       ) : (
+                         <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-widest border border-rose-200">
+                           Full
+                         </span>
+                       )}
                     </TableCell>
                     <TableCell className="text-right px-6">
                       <div className="flex justify-end gap-1.5">

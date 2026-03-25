@@ -134,6 +134,39 @@ export default function StudentsPage() {
       return;
     }
 
+    // Capacity Check Logic
+    const isRoomChanging = mode === "add" || selectedRoomId !== selectedStudent?.room_id;
+    
+    if (isRoomChanging) {
+      // 1. Get room capacity
+      const { data: roomData, error: roomError } = await supabase
+        .from("rooms")
+        .select("total_beds, room_number")
+        .eq("id", selectedRoomId)
+        .single();
+      
+      if (roomError || !roomData) {
+         alert("Invalid room selected. Please try again.");
+         setIsSyncing(false);
+         return;
+      }
+
+      // 2. Count active students in this room
+      const { count, error: countError } = await supabase
+        .from("students")
+        .select("*", { count: "exact", head: true })
+        .eq("room_id", selectedRoomId)
+        .eq("is_active", true);
+
+      if (countError) {
+         console.error("Error checking capacity:", countError.message);
+      } else if (count !== null && count >= roomData.total_beds) {
+         alert(`Room ${roomData.room_number} is fully occupied (${roomData.total_beds}/${roomData.total_beds} beds used). Please select another room.`);
+         setIsSyncing(false);
+         return;
+      }
+    }
+
     const studentPayload = {
       name: formData.get("name") as string,
       phone: formData.get("phone") as string,
