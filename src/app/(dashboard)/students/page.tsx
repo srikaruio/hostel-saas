@@ -418,14 +418,27 @@ export default function StudentsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 pointer-events-auto">
                   <label className="text-sm font-semibold text-foreground/70 tracking-tight">Join Date</label>
-                  <Input 
+                  <input 
                      id="joinDate" 
                      name="joinDate" 
                      type="date" 
                      defaultValue={selectedStudent?.join_date} 
-                     className="h-11 bg-muted/20 focus:bg-background transition-all border-muted-foreground/20" 
+                     className="
+                       flex w-full h-11
+                       bg-neutral-900
+                       text-white
+                       placeholder:text-neutral-400
+                       border border-neutral-700
+                       rounded-lg
+                       px-3 py-2
+                       focus:outline-none
+                       focus:ring-2 focus:ring-emerald-500
+                       transition-all
+                       cursor-pointer
+                       block
+                     " 
                      required 
                   />
                 </div>

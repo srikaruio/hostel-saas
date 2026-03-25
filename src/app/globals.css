@@ -25,6 +25,10 @@
   --shadow-premium: 0 0 0 1px var(--border), 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   /* Light Theme (Clean Neutral) */
   --background: #ffffff;
@@ -93,6 +97,16 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased transition-colors duration-500 ease-in-out;
+  }
+  /* Global fix for date inputs in dark mode */
+  input[type="date"] {
+    color-scheme: dark;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.8;
+    cursor: pointer;
   }
   /* Scrollbar override */
   ::-webkit-scrollbar {

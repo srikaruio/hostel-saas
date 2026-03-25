@@ -46,6 +46,7 @@ export default function RootLayout({
               })();
             `,
           }}
+          suppressHydrationWarning
         />
       </head>
       <body suppressHydrationWarning className="min-h-full flex flex-col font-sans selection:bg-primary/20">
