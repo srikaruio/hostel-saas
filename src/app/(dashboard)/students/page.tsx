@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Plus, Search, Edit, Trash2, Loader2, UserPlus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -94,11 +94,16 @@ export default function StudentsPage() {
     setLoading(false);
   }
 
-  const filteredStudents = students.filter((s) =>
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.phone.includes(searchTerm) ||
-    s.rooms?.room_number.includes(searchTerm)
-  );
+  const filteredStudents = useMemo(() => {
+    return students.filter((s) => {
+      const search = searchTerm.toLowerCase();
+      return (
+        s.name.toLowerCase().includes(search) ||
+        s.phone.includes(search) ||
+        (s.rooms?.room_number || "").toLowerCase().includes(search)
+      );
+    });
+  }, [students, searchTerm]);
 
   const openAddModal = () => {
     setMode("add");
@@ -251,41 +256,41 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold tracking-tight">Student Directory</h2>
-          <p className="text-sm text-muted-foreground">Manage student enrollments and room assignments.</p>
+    <div className="space-y-4 md:space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+      <div className="flex flex-col sm:items-center sm:flex-row justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-xl md:text-2xl font-black text-foreground tracking-tight">Student Directory</h2>
+          <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest opacity-70">Enrollment & Room Management</p>
         </div>
-        <Button onClick={openAddModal} className="gap-2 shadow-sm font-semibold h-10 px-5">
-          <Plus className="h-4.5 w-4.5" />
+        <Button onClick={openAddModal} className="w-full sm:w-auto gap-2 shadow-none font-bold h-9 px-4 text-xs bg-foreground text-background hover:bg-foreground/90 transition-all rounded-lg">
+          <Plus className="h-3.5 w-3.5" />
           Add Student
         </Button>
       </div>
 
-      <Card className="border-none shadow-premium overflow-hidden bg-white">
-        <CardHeader className="pb-0 pt-6 px-6 relative border-b bg-muted/20 pb-4">
-          <div className="flex items-center gap-4 max-w-sm">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Card className="bg-card border border-border shadow-none overflow-hidden hover:border-primary/20 transition-colors">
+        <CardHeader className="py-2.5 px-4 md:py-3 md:px-6 relative border-b border-border bg-muted/5">
+          <div className="flex items-center gap-4 max-w-xs w-full">
+            <div className="relative flex-1 group">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
                 placeholder="Search students..."
-                className="pl-10 h-9 bg-background shadow-xs focus:ring-1 transition-all border-muted-foreground/20"
+                className="pl-9 h-9 bg-muted/20 border-border shadow-none focus:ring-1 focus:ring-primary/20 rounded-lg text-xs"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-muted/40 font-bold border-b">
+        <CardContent className="p-0 overflow-x-auto">
+          <Table className="min-w-[800px] lg:min-w-full">
+            <TableHeader className="bg-muted/10 font-bold border-b border-border">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="min-w-[200px] px-6 py-4 font-bold text-foreground uppercase tracking-wider text-[11px]">Name</TableHead>
-                <TableHead className="w-[150px] font-bold text-foreground uppercase tracking-wider text-[11px]">Phone</TableHead>
-                <TableHead className="w-[120px] font-bold text-foreground uppercase tracking-wider text-[11px]">Room</TableHead>
-                <TableHead className="w-[150px] font-bold text-foreground uppercase tracking-wider text-[11px]">Join Date</TableHead>
-                <TableHead className="text-right px-6 w-[120px] font-bold text-foreground uppercase tracking-wider text-[11px]">Actions</TableHead>
+                <TableHead className="min-w-[200px] px-6 py-3 font-bold text-foreground uppercase tracking-wider text-[10px]">Name</TableHead>
+                <TableHead className="w-[150px] font-bold text-foreground uppercase tracking-wider text-[10px]">Phone</TableHead>
+                <TableHead className="w-[120px] font-bold text-foreground uppercase tracking-wider text-[10px]">Room Number</TableHead>
+                <TableHead className="w-[150px] font-bold text-foreground uppercase tracking-wider text-[10px]">Join Date</TableHead>
+                <TableHead className="text-right px-6 w-[120px] font-bold text-foreground uppercase tracking-wider text-[10px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -293,26 +298,26 @@ export default function StudentsPage() {
                 <TableRow>
                    <TableCell colSpan={5} className="h-64 text-center">
                       <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground/60 animate-in fade-in zoom-in-95">
-                         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                         <span className="text-sm font-medium">Fetching directory...</span>
+                        <Loader2 className="h-10 w-10 animate-spin text-neutral-700" />
+                        <span className="text-xs font-bold uppercase tracking-widest">Fetching Directory...</span>
                       </div>
                    </TableCell>
                 </TableRow>
               ) : filteredStudents.length > 0 ? (
-                filteredStudents.map((student) => (
-                  <TableRow key={student.id} className="hover:bg-muted/30 transition-colors group">
-                    <TableCell className="font-semibold px-6 py-4 whitespace-nowrap text-foreground">
+                filteredStudents.map((student: Student) => (
+                  <TableRow key={student.id} className="hover:bg-muted/5 border-border transition-colors group">
+                    <TableCell className="font-semibold px-6 py-3.5 whitespace-nowrap text-foreground text-sm">
                       {student.name}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground font-mono text-xs">
+                    <TableCell className="whitespace-nowrap text-muted-foreground font-mono text-[11px]">
                       {student.phone}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      <span className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-black uppercase tracking-widest ring-1 ring-accent-foreground/10">
+                      <span className="px-2 py-0.5 rounded-md bg-muted border border-border text-foreground text-[10px] font-black uppercase tracking-tight">
                         {student.rooms?.room_number || "N/A"}
                       </span>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-foreground/70 font-medium">
+                    <TableCell className="whitespace-nowrap text-[11px] text-muted-foreground font-medium">
                       {new Date(student.join_date).toLocaleDateString(undefined, {
                         year: 'numeric',
                         month: 'short',
@@ -333,7 +338,7 @@ export default function StudentsPage() {
                            variant="ghost" 
                            size="icon" 
                            onClick={() => openDeleteModal(student)}
-                           className="h-8 w-8 text-rose-500/70 hover:text-rose-600 hover:bg-rose-50 transition-all font-bold"
+                           className="h-8 w-8 text-rose-500/70 hover:text-rose-600 hover:bg-rose-500/10 transition-all font-bold"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

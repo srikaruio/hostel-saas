@@ -96,7 +96,16 @@ export default function RoomsPage() {
   }
 
   const filteredRooms = useMemo(() => {
-    return rooms.filter((r) => r.room_number.toLowerCase().includes(searchTerm.toLowerCase()));
+    return rooms.filter((r) => {
+      const search = searchTerm.toLowerCase();
+      const occ = r.occupancy || 0;
+      const statusText = occ === 0 ? "empty" : occ < r.total_beds ? "available" : "full";
+      
+      return (
+        r.room_number.toLowerCase().includes(search) ||
+        statusText.includes(search)
+      );
+    });
   }, [rooms, searchTerm]);
 
   const handleOpenAdd = () => {
@@ -204,84 +213,84 @@ export default function RoomsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Room Management</h2>
-          <p className="text-sm text-muted-foreground">Modify room configurations and bed capacity.</p>
+    <div className="space-y-4 md:space-y-6 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:items-center sm:flex-row justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-xl md:text-2xl font-black text-foreground tracking-tight">Room Management</h2>
+          <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest opacity-70">Capacity & Utility Intelligence</p>
         </div>
-        <Button onClick={handleOpenAdd} className="gap-2 shadow-sm font-bold">
-          <Plus className="h-4 w-4" />
+        <Button onClick={handleOpenAdd} className="w-full sm:w-auto gap-2 shadow-none font-bold h-9 px-4 text-xs bg-foreground text-background hover:bg-foreground/90 transition-all rounded-lg">
+          <Plus className="h-3.5 w-3.5" />
           Add Room
         </Button>
       </div>
 
-      <Card className="border-none shadow-premium overflow-hidden bg-white">
-        <CardHeader className="pt-6 px-6 pb-4 border-b bg-muted/10">
-          <div className="flex items-center gap-4 max-w-xs">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Card className="bg-card border border-border shadow-none overflow-hidden hover:border-primary/20 transition-colors">
+        <CardHeader className="py-2.5 px-4 md:py-3 md:px-6 relative border-b border-border bg-muted/5">
+          <div className="flex items-center gap-4 max-w-xs w-full">
+            <div className="relative flex-1 group">
+              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
-                placeholder="Find room..."
-                className="pl-9 h-9 bg-background shadow-xs focus:ring-1 border-muted-foreground/20"
+                placeholder="Find inventory..."
+                className="pl-9 h-9 bg-muted/20 border-border shadow-none focus:ring-1 focus:ring-primary/20 rounded-lg text-xs"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-muted font-bold text-foreground">
+        <CardContent className="p-0 overflow-x-auto">
+          <Table className="min-w-[700px] lg:min-w-full">
+            <TableHeader className="bg-muted/10 font-bold border-b border-border">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="px-6 py-4 font-bold text-[11px] uppercase tracking-widest">Details</TableHead>
-                <TableHead className="py-4 font-bold text-[11px] uppercase tracking-widest">Capacity</TableHead>
-                <TableHead className="py-4 font-bold text-[11px] uppercase tracking-widest">Occupancy</TableHead>
-                <TableHead className="text-right px-6 font-bold text-[11px] uppercase tracking-widest">Actions</TableHead>
+                <TableHead className="px-6 py-3 font-bold text-[10px] text-foreground uppercase tracking-widest">General Information</TableHead>
+                <TableHead className="py-3 font-bold text-[10px] text-foreground uppercase tracking-widest">Resource Allocation</TableHead>
+                <TableHead className="py-3 font-bold text-[10px] text-foreground uppercase tracking-widest">Inventory Status</TableHead>
+                <TableHead className="text-right px-6 font-bold text-[10px] text-foreground uppercase tracking-widest">Action Center</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-64 text-center">
-                    <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-2" />
-                    <span className="text-sm font-medium text-muted-foreground">Syncing rooms...</span>
+                  <TableCell colSpan={4} className="h-64 text-center border-border">
+                    <Loader2 className="h-10 w-10 animate-spin text-neutral-700 mx-auto mb-3" />
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Syncing inventory...</span>
                   </TableCell>
                 </TableRow>
               ) : filteredRooms.length > 0 ? (
                 filteredRooms.map((room) => (
-                  <TableRow key={room.id} className="hover:bg-muted/30 transition-all duration-200">
-                    <TableCell className="px-6 py-4">
+                  <TableRow key={room.id} className="hover:bg-muted/5 border-border transition-all duration-200 group">
+                    <TableCell className="px-6 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
-                          <DoorOpen className="h-5 w-5" />
+                        <div className="h-9 w-9 bg-muted rounded-lg flex items-center justify-center text-foreground border border-border">
+                          <DoorOpen className="h-4 w-4" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-bold text-foreground">Room {room.room_number}</span>
-                          <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-tighter">ID: {room.id.substring(0, 8)}</span>
+                          <span className="text-sm font-bold text-foreground">Unit {room.room_number}</span>
+                          <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-tighter opacity-70">UID: {room.id.substring(0, 8)}</span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
                         <span className="text-sm font-black text-foreground">{room.occupancy} / {room.total_beds} filled</span>
-                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-                          {room.total_beds - (room.occupancy || 0)} vacant beds
+                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60">
+                          {room.total_beds - (room.occupancy || 0)} available
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
                       {room.occupancy === 0 ? (
-                        <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest border border-slate-200">
-                          Empty
+                        <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-[9px] font-black uppercase tracking-tight border border-border">
+                          Idle
                         </span>
                       ) : room.occupancy! < room.total_beds ? (
-                        <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase tracking-widest border border-emerald-200">
-                          Available
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-tight border border-emerald-500/20">
+                          Active
                         </span>
                       ) : (
-                        <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-widest border border-rose-200">
-                          Full
+                        <span className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-500 text-[9px] font-black uppercase tracking-tight border border-rose-500/20">
+                          Maximum
                         </span>
                       )}
                     </TableCell>
@@ -299,7 +308,7 @@ export default function RoomsPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenArchive(room)}
-                          className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                          className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

@@ -84,7 +84,7 @@ export default function LoginPage() {
             </div>
             
             {error && (
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold animate-in slide-in-from-top-2">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold animate-in slide-in-from-top-2">
                  ⚠️ {error}
               </div>
             )}
@@ -101,7 +101,7 @@ export default function LoginPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4 pb-8 border-t bg-muted/10 pt-6 mt-4">
+        <CardFooter className="flex flex-col gap-4 pb-8 border-t border-border bg-muted/5 pt-6 mt-4">
            <div className="text-xs font-medium text-muted-foreground">
               Don't have an account?{" "}
               <Link href="/signup" className="text-primary font-bold hover:underline">Create Portal</Link>

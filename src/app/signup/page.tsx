@@ -84,7 +84,7 @@ export default function SignupPage() {
             </div>
             
             {error && (
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 text-rose-600 text-[11px] font-bold animate-in slide-in-from-top-2">
+              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[11px] font-bold animate-in slide-in-from-top-2">
                  ⚠️ {error}
               </div>
             )}
@@ -101,7 +101,7 @@ export default function SignupPage() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4 pb-10 border-t bg-muted/10 pt-6 mt-4 text-center">
+        <CardFooter className="flex flex-col gap-4 pb-10 border-t border-border bg-muted/5 pt-6 mt-4 text-center">
            <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
               Already have a portal?{" "}
               <Link href="/login" className="text-primary font-black hover:underline cursor-pointer">Login to Access</Link>
